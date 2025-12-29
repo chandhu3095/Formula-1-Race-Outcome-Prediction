@@ -145,6 +145,18 @@ These dashboards allow:
 - **Power BI**
 
 ---
+## 📁 Project Structure
+├── data/
+│   ├── raw/              # Raw Kaggle datasets
+│   └── processed/        # Cleaned and feature-engineered data
+├── notebooks/
+│   └── f1_ml_pipeline.ipynb   # End-to-end ML pipeline notebook
+├── models/
+│   ├── rf_model_baseline.pkl  # Random Forest baseline model
+│   └── xgb_race_model.json   # XGBoost final model
+├── powerbi/
+│   └── dashboards.pbix       # Power BI dashboards
+├── README.md                 # Project documentation
 
 ---
 
@@ -169,5 +181,5 @@ If you’d like to discuss this project or opportunities in data science / machi
 
 ---
 
-## 📁 Project Structure
+
 

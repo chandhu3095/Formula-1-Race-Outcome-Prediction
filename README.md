@@ -147,16 +147,17 @@ These dashboards allow:
 ---
 ## 📁 Project Structure
 ├── data/
-│   ├── raw/              # Raw Kaggle datasets
-│   └── processed/        # Cleaned and feature-engineered data
+│   ├── raw/
+│   └── processed/
 ├── notebooks/
-│   └── f1_ml_pipeline.ipynb   # End-to-end ML pipeline notebook
+│   └── f1_ml_pipeline.ipynb
 ├── models/
-│   ├── rf_model_baseline.pkl  # Random Forest baseline model
-│   └── xgb_race_model.json   # XGBoost final model
+│   ├── rf_model_baseline.pkl
+│   └── xgb_race_model.json
 ├── powerbi/
-│   └── dashboards.pbix       # Power BI dashboards
-├── README.md                 # Project documentation
+│   └── dashboards.pbix
+└── README.md
+
 
 ---
 

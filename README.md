@@ -1,215 +1,150 @@
 # 🏎️ Formula 1 Race Outcome Prediction — Machine Learning Pipeline
 
-## 📌 Project Overview
+[![CI - F1 Race Prediction API](https://github.com/chandhu3095/F1-Race-Prediction-API/actions/workflows/ci.yml/badge.svg)](https://github.com/chandhu3095/F1-Race-Prediction-API/actions)
 
-This project builds an **end-to-end machine learning pipeline** to predict a Formula 1 driver’s **finishing position** using historical race data from the modern F1 era (2015–2024).
+An end-to-end machine learning project that predicts Formula 1 driver finishing positions using historical race data (2015–2024). The project extends a Jupyter Notebook ML workflow into a **FastAPI REST API**, with automated testing, Docker containerization, continuous integration, and public deployment.
 
-Formula 1 race outcomes are influenced by multiple interacting factors such as qualifying performance, lap pace consistency, pit stop strategy, driver experience, and track characteristics.  
-The goal of this project is to model these factors together and produce **accurate and explainable predictions**.
-
-In addition to machine learning modeling, the project includes **interactive Power BI dashboards** to translate predictions into business- and strategy-focused insights.
+**Live API:** [F1 Race Prediction API](https://f1-race-prediction-api.onrender.com)  
+**Interactive API Documentation:** [Swagger UI](https://f1-race-prediction-api.onrender.com/docs)  
+**GitHub Repository:** [F1-Race-Prediction-API](https://github.com/chandhu3095/F1-Race-Prediction-API)  
+**GitHub Actions:** [Workflow Runs](https://github.com/chandhu3095/F1-Race-Prediction-API/actions)
 
 ---
+
+## 📌 Project Overview
+
+Formula 1 race outcomes are influenced by qualifying performance, lap pace, pit-stop strategy, driver experience, and track characteristics.
+
+This project uses historical Formula 1 data to build, evaluate, interpret, and deploy regression models for predicting driver finishing positions.
+
+### Key Features
+
+- Data cleaning, validation, exploratory data analysis (EDA), and feature engineering.
+- Random Forest baseline and XGBoost regression models.
+- Model evaluation using MAE, RMSE, and positional error analysis.
+- SHAP-based model explainability.
+- FastAPI REST API for serving predictions.
+- Pydantic request validation and structured responses.
+- Automated API testing with pytest.
+- Docker containerization.
+- GitHub Actions continuous integration (CI).
+- Public deployment on Render.
 
 ## 🎯 Problem Statement
 
-Predict the **finishing position of a Formula 1 driver** in a race using historical data, while ensuring:
+Predict a Formula 1 driver's finishing position using engineered features derived from historical race data.
 
-- Strong predictive performance
-- Clear interpretability of model decisions
-- Practical insights into race strategy and performance
+The task is formulated as a **supervised regression problem**, where the target variable is the driver's numerical finishing position.
 
-This is framed as a **regression problem**, where the target is a numeric, ordered finishing position.
-
----
+**Current scope:** The deployed API performs inference for historical, completed races. It is not yet a true pre-race forecasting or live race prediction system.
 
 ## 📊 Dataset
 
-The dataset is sourced from publicly available Formula 1 historical data (Kaggle) and consists of multiple relational tables.
+**Dataset Source:** [Formula 1 Racing Dataset — Kaggle](https://www.kaggle.com/datasets/melissamonfared/formula-1)
 
-### Key data sources:
-- Race results (finishing position, laps completed, points)
-- Qualifying data (grid position, qualifying rank)
-- Lap times (lap-level performance consistency)
-- Pit stop data (number of stops, timing)
-- Driver and constructor metadata
-- Race metadata (track, season, race details)
+- **Time Range:** 2015–2024
+- **Modeling Records:** 3,345 driver-race records
+- **Data Format:** Multiple relational CSV datasets
 
-### Time range:
-- **2015 – 2024** (modern Formula 1 era)
+### Data Sources
 
-The raw datasets were merged, cleaned, and filtered to ensure consistency and relevance for modern race dynamics.
+- Race results
+- Qualifying results
+- Lap times
+- Pit stops
+- Driver and constructor information
+- Circuit and race metadata
 
----
+The data preparation process includes cleaning, validation, filtering, merging relevant tables, exploratory analysis, and feature engineering.
 
 ## 🔍 Exploratory Data Analysis (EDA)
 
-EDA was intentionally kept **light and focused**, as the dataset is structured and domain-driven.
+EDA was used to investigate race performance patterns and support feature selection.
 
-Key exploratory analyses include:
-- Distribution of finishing positions
-- Qualifying position vs finishing position
-- Pit stop count vs finishing position
-- Lap pace consistency vs finishing position
+Key analyses included:
 
-These checks validated domain assumptions and supported feature selection.
-
----
+- Distribution of finishing positions.
+- Qualifying position versus finishing position.
+- Pit-stop count versus finishing position.
+- Lap-time metrics and race performance.
+- Relationships between driver experience and finishing position.
 
 ## 🛠️ Feature Engineering
 
-Raw race data was transformed into **model-ready features**, including:
+The deployed XGBoost model uses nine features:
 
-- **Qualifying performance**
-  - Qualifying position
-  - Qualifying vs career average performance
+| Feature | Description |
+|---|---|
+| `qual_pos` | Driver's qualifying position |
+| `pit_count` | Number of pit stops |
+| `laps_completed` | Number of laps completed |
+| `avg_lap_sec` | Average lap time in seconds |
+| `fastest_lap_sec` | Fastest lap time in seconds |
+| `career_avg_finish` | Historical average finishing position |
+| `career_race_count` | Number of previous races |
+| `qual_vs_career` | Qualifying performance relative to career average |
+| `track_avg_finish` | Historical average finishing position associated with the track |
 
-- **Lap pace metrics**
-  - Average lap time
-  - Fastest lap time
-
-- **Pit stop strategy**
-  - Number of pit stops
-  - First pit lap (for pit strategy modeling)
-
-- **Driver experience**
-  - Career race count
-  - Career average finishing position
-
-- **Track characteristics**
-  - Track-level average finishing position (difficulty proxy)
-
-Target variable:
-- **Finishing Position** (regression target)
-
-Missing values were handled carefully, and only reliable race entries were used for training.
-
----
+The API's feature service prepares these features from the historical datasets before passing them to the trained model.
 
 ## 🤖 Modeling Approach
 
-This is a **supervised regression problem**.
+Two regression models were evaluated.
 
-### Models used:
-1. **Random Forest Regressor**
-   - Baseline model
-   - Strong non-linear performance
-   - Robust to noise
+### 1. Random Forest Regressor
 
-2. **XGBoost Regressor**
-   - Final production model
-   - Better generalization and lower error
-   - Efficient handling of complex feature interactions
+- Used as the baseline model.
+- Captures nonlinear relationships between features and finishing position.
+- Provides a benchmark for model comparison.
 
-The model learns patterns such as:
-- Strong qualifying positions improving race outcomes
-- Lap pace consistency being more important than single fast laps
-- Excessive pit stops negatively impacting finishing position
+### 2. XGBoost Regressor
 
----
+- Selected as the final deployed model.
+- Captures complex relationships between engineered features.
+- Saved in JSON format for inference through the API.
 
 ## 📈 Model Evaluation
 
-Model performance was evaluated using:
+Model performance was evaluated using Mean Absolute Error (MAE), Root Mean Squared Error (RMSE), and positional error analysis.
 
-- **Mean Absolute Error (MAE)**
-- **Root Mean Squared Error (RMSE)**
-- **Positional Accuracy**
-  - Predictions within ±1 finishing position
-  - Predictions within ±2 finishing positions
+| Metric | XGBoost Result |
+|---|---:|
+| Mean Absolute Error (MAE) | 2.06 positions |
+| Root Mean Squared Error (RMSE) | 2.73 positions |
+| Predictions within ±1 position | 46.34% |
+| Predictions within ±2 positions | 68.91% |
 
-These metrics are intuitive and directly interpretable in a racing context.
+These results describe performance on the evaluated test set and do not guarantee accuracy on future races.
 
----
+## 🔍 Model Explainability — SHAP
 
-## 🔍 Explainability (SHAP)
+SHAP (SHapley Additive exPlanations) was used in the notebook to investigate feature contributions and interpret model predictions.
 
-To ensure transparency, **SHAP (SHapley Additive Explanations)** was used.
+It supports:
 
-SHAP provides:
-- Feature-level contribution for each prediction
-- Directional impact (positive or negative)
-- Global and driver-specific explanations
+- Understanding feature contributions to individual predictions.
+- Comparing the influence of model features.
+- Improving the interpretability of model outputs.
 
-Key insights:
-- Qualifying position is the strongest predictor
-- Lap pace consistency significantly impacts outcomes
-- Pit stop behavior can have positive or negative effects depending on context
+## 🏗️ Application Architecture
 
-This prevents the model from being treated as a black box.
-
----
-
-## 📊 Power BI Dashboards
-
-Interactive dashboards were built to translate model outputs into actionable insights:
-
-1. **Race Performance Overview**
-   - Actual vs predicted finishing positions
-   - Driver and race-level analysis
-
-2. **Driver Explainability**
-   - Feature influence on predictions
-   - Driver-specific performance patterns
-
-3. **Pit Stop Strategy & Impact**
-   - Pit timing vs race outcome
-   - Strategy effectiveness across tracks and teams
-
----
-
-## 🗂️ Project Structure
-
-```
-├── data/
-│   ├── raw/                # Raw datasets from Kaggle
-│   └── processed/          # Cleaned and engineered data
-│
-├── notebooks/
-│   └── f1_ml_pipeline.ipynb   # End-to-end ML workflow
-│
-├── models/
-│   ├── rf_model_baseline.pkl  # Random Forest baseline model
-│   └── xgb_race_model.json   # Final XGBoost model
-│
-├── powerbi/
-│   └── dashboards.pbix       # Power BI dashboards
-│
-├── README.md
-```
-
-
----
-
-## 🧰 Tools & Technologies
-
-- **Python** (Pandas, NumPy)
-- **Scikit-learn**
-- **XGBoost**
-- **SHAP**
-- **Matplotlib / Plotly**
-- **Power BI**
-
----
-
-## ✅ Key Takeaways
-
-- Built a complete ML pipeline from raw data to explainable predictions
-- Applied domain-driven feature engineering
-- Used advanced evaluation techniques beyond standard regression metrics
-- Combined machine learning with business intelligence for storytelling
-
----
-
-## 🔗 Dataset Source
-
-Formula 1 Racing (1950–2024):  
-https://www.kaggle.com/datasets/melissamonfared/formula-1
-
----
-
-## 📬 Feedback
-
-Feedback, suggestions, and improvements are welcome.
-
-
+```text
+Client
+  |
+  | POST /predict
+  v
+FastAPI Application
+  |
+  v
+Pydantic Request Validation
+  |
+  v
+FeatureService
+  |
+  | Build 9 model features
+  v
+ModelService
+  |
+  | XGBoost inference
+  v
+Prediction Response
